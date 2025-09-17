@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gift Surprise - Demo</title>
+<style>
+  :root{
+    --bg:#ffd7e1;
+    --pink:#ff8fb0;
+    --deep:#ff2f6f;
+    --muted:#9a6b7c;
+    --card:#ffc7d8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, Arial, sans-serif}
+  body,html{height:100%}
+  .app{
+    min-height:100vh;
+    background:linear-gradient(180deg,var(--bg), #ffd1e6 60%);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding:24px 16px;
+  }
+  .phone{
+    width:400px; max-width:98vw;
+    height:88vh; border-radius:18px;
+    background:#f8cfdc; box-shadow:0 10px 30px rgba(0,0,0,.45);
+    overflow:hidden; position:relative; display:flex; flex-direction:column;
+  }
+  .page{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; transition:transform .7s cubic-bezier(.2,.9,.2,1), opacity .5s;
+  }
+  .hidden{opacity:0; transform:translateY(20px); pointer-events:none;}
+
+  .gift-wrap{
+    width:220px; height:220px; border-radius:18px;
+    background:linear-gradient(180deg,#ffd1dc,#ffc0d2);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 20px 40px rgba(0,0,0,.15), inset 0 4px 0 rgba(255,255,255,.2);
+    position:relative;
+    transition:transform .35s ease;
+  }
+  .gift-wrap.float{ animation:float 3s ease-in-out infinite; }
+  @keyframes float{ 0%{transform:translateY(0)} 50%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
+
+  .gift{width:110px;height:110px;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .bow{position:absolute;top:6px;width:70px;height:34px;border-radius:20px;border:10px solid var(--deep);border-bottom-width:6px;box-shadow:0 8px 18px rgba(255,50,120,.15);}
+  .box{position:absolute;bottom:0;width:86px;height:60px;border-radius:8px;border:10px solid var(--deep);border-top-width:6px;}
+  .card-shadow{position:absolute;bottom:-20px;width:160px;height:40px;border-radius:999px;filter:blur(12px);opacity:.25;background:linear-gradient(90deg,#ff9,#f9c);}
+  .ripple{position:absolute;width:20px;height:20px;border-radius:50%;background:rgba(255,50,120,.14);transform:scale(0);pointer-events:none;}
+  .cta{text-align:center;margin-top:18px;}
+  .cta h2{font-size:22px;color:var(--deep);margin-bottom:6px;letter-spacing:1px}
+  .cta p{color:var(--muted);font-size:14px}
+
+  .message{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;gap:18px;}
+  .message .big{font-size:38px;color:var(--deep);font-weight:700;letter-spacing:6px;transform:translateY(8px);opacity:0;animation:popIn .7s forwards;}
+  @keyframes popIn{to{transform:translateY(0);opacity:1}}
+  .type{font-size:18px;color:#7b414f;opacity:.95;height:28px;overflow:hidden;white-space:nowrap;}
+  .open-btn{margin-top:14px;background:var(--deep);color:white;padding:10px 20px;border-radius:12px;cursor:pointer;box-shadow:0 10px 20px rgba(255,50,120,.14);border:none;font-weight:600;}
+
+  .characters{width:100%;height:100%;display:flex;flex-direction:column;padding:24px;gap:10px;align-items:center;justify-content:flex-start;}
+  .heading{margin-top:32px;font-size:48px;color:var(--deep);font-weight:800;letter-spacing:6px;align-self:flex-start;padding-left:22px;}
+  .row{width:100%;flex:1;display:flex;align-items:flex-end;justify-content:space-between;padding:20px 26px;}
+  .person{width:140px;display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateY(30px);opacity:0;transition:transform .7s cubic-bezier(.2,.9,.2,1),opacity .7s;}
+  .person.show{transform:translateY(0);opacity:1;}
+  /* cartoon head with eyes & mouth */
+  .head{width:78px;height:78px;border-radius:50%;background:#fcd5b5;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;margin-bottom:4px;}
+  .eyes{display:flex;gap:10px;margin-top:10px;}
+  .eye{width:10px;height:10px;border-radius:50%;background:#222;}
+  .mouth{width:24px;height:10px;border-radius:0 0 12px 12px;background:#e25b5b;margin-top:6px;}
+  .hair-male,.hair-female{position:absolute;top:-6px;left:0;width:100%;height:40px;border-radius:40px 40px 20px 20px;}
+  .hair-male{background:#2b2b2b;}
+  .hair-female{background:#7a3a2f;}
+  .body{width:120px;height:86px;border-radius:12px;background:linear-gradient(180deg,#ff6a9c,#ff4579);}
+  .body-left{background:linear-gradient(180deg,#7f3dc2,#8b2db7);}
+  .feet{height:24px;width:70px;border-radius:8px;background:#122227;margin-top:8px;}
+  .initial{color:var(--muted);font-weight:800;margin-top:8px;font-size:18px}
+
+  @media (max-width:420px){
+    .heading{font-size:38px}
+    .gift-wrap{width:190px;height:190px}
+    .gift{width:95px;height:95px}
+  }
+  .bottom{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.15)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="phone">
+    <!-- PAGE 1 -->
+    <section id="page-gift" class="page">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <div id="giftWrap" class="gift-wrap float">
+          <div class="gift" id="gift">
+            <div class="bow"></div><div class="box"></div>
+          </div>
+          <div class="card-shadow"></div><div id="rippleContainer"></div>
+        </div>
+        <div class="cta">
+          <h2 id="ctaText">Click me!</h2>
+          <p>Made with <span style="color:#ff6a9c">♥</span> for someone special</p>
+        </div>
+      </div>
+      <div class="bottom"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </section>
+
+    <!-- PAGE 2 -->
+    <section id="page-msg" class="page hidden">
+      <div class="message">
+        <div class="big">Like You ❤</div>
+        <div class="type" id="typeText"></div>
+        <button class="open-btn" id="openBtn">Open Surprise</button>
+      </div>
+    </section>
+
+    <!-- PAGE 3 -->
+    <section id="page-chars" class="page hidden">
+      <div class="characters">
+        <div class="heading">Like You ❤</div>
+        <div class="row">
+          <!-- Male Character -->
+          <div id="leftPerson" class="person">
+            <div class="head">
+              <div class="hair-male"></div>
+              <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+              <div class="mouth"></div>
+            </div>
+            <div class="body body-left"></div>
+            <div class="feet"></div>
+            <div class="initial">J</div>
+          </div>
+          <!-- Female Character -->
+          <div id="rightPerson" class="person">
+            <div class="head">
+              <div class="hair-female"></div>
+              <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+              <div class="mouth"></div>
+            </div>
+            <div class="body"></div>
+            <div class="feet"></div>
+            <div class="initial">D</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const gift = document.getElementById('gift');
+  const giftWrap = document.getElementById('giftWrap');
+  const rippleContainer = document.getElementById('rippleContainer');
+  const pageGift = document.getElementById('page-gift');
+  const pageMsg = document.getElementById('page-msg');
+  const pageChars = document.getElementById('page-chars');
+  const typeText = document.getElementById('typeText');
+  const openBtn = document.getElementById('openBtn');
+  const leftPerson = document.getElementById('leftPerson');
+  const rightPerson = document.getElementById('rightPerson');
+
+  gift.addEventListener('click', ()=>{
+    giftWrap.style.transform = 'scale(.96)';
+    setTimeout(()=> giftWrap.style.transform = '', 160);
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    rippleContainer.appendChild(r);
+    r.style.left = 'calc(50% - 10px)';
+    r.style.top = 'calc(50% - 10px)';
+    r.animate([{transform:'scale(.2)',opacity:0.8},{transform:'scale(6)',opacity:0}],{duration:700,easing:'ease-out'}).onfinish=()=>r.remove();
+    setTimeout(()=> showPage('msg'), 420);
+  });
+
+  function showPage(which){
+    pageGift.classList.add('hidden');
+    pageMsg.classList.add('hidden');
+    pageChars.classList.add('hidden');
+    if(which==='gift'){pageGift.classList.remove('hidden');}
+    if(which==='msg'){pageMsg.classList.remove('hidden');startTyping(["You are special.","You make me smile.","Will you be mine?"]); }
+    if(which==='chars'){pageChars.classList.remove('hidden');setTimeout(()=>leftPerson.classList.add('show'),200);setTimeout(()=>rightPerson.classList.add('show'),420);}
+  }
+
+  let typingInterval;
+  function startTyping(lines){
+    clearInterval(typingInterval);
+    let idx=0,char=0;let current='';typeText.textContent='';
+    function step(){
+      if(idx>=lines.length){idx=0;}
+      current=lines[idx];
+      if(char<=current.length){typeText.textContent=current.slice(0,char);char++;}
+      else{setTimeout(()=>{idx++;char=0;},900);}
+    }
+    step();typingInterval=setInterval(step,80);
+  }
+
+  openBtn.addEventListener('click', ()=>{clearInterval(typingInterval);openBtn.animate([{transform:'translateY(0)'},{transform:'translateY(-8px)'},{transform:'translateY(0)'}],{duration:360});setTimeout(()=>showPage('chars'),250);});
+  showPage('gift');
+</script>
+</body>
+</html>
